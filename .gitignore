@@ -1,0 +1,5 @@
+config.py
+chaincode_id
+scrap.txt
+*.pyc
+cacert.pem
