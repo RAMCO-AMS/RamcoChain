@@ -1,7 +1,7 @@
 # RamcoChain
 For Demonstration Purposes - A python script which enables automated REALTOR engagement tracking on a HyperLedger Blockchain with the RAMCO API
 
-Usage: python committee-chainify.py
+Usage: python engagement-chainify.py
 
 Screenshots:
 <kbd>
