@@ -51,7 +51,7 @@ def fetch_committee_changes():
     results = sendMessage(payload)
 
     logging.info(
-        "Found " + str(len(results['Data'])) + " Altered Committee Memberships:")
+        "Found " + str(len(results['Data'])) + " Altered Committee Memberships in RAMCO:")
 
     return results['Data']
 
@@ -221,12 +221,12 @@ def main():
                 "cobalt_name"]
 
             # committee_data["id"]=hexlify(os.urandom(16)).decode('ascii')
-            logging.info("Checking if \"" + committee_data["name"] + "\" already exists: " + committee_data["id"])
+            logging.info("Checking if \"" + committee_data["name"] + "\" already exists on the Blockchain: " + committee_data["id"])
             if (does_thing_exist(committee_data["id"])):
-                logging.info("...already exists")
+                logging.info("...already exists on the Blockchain")
                 thing_exists = True
             else:
-                logging.info(committee_data["name"]+ " does not exist. Creating...")
+                logging.info(committee_data["name"]+ " does not exist. Creating Blockchain Entry...")
                 thing = {"id": committee_data["id"],
                          "description": committee_data["Description"],
                          "date": committee_data["Date"],
