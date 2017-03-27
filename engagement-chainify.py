@@ -4,7 +4,6 @@ This sample should ping ramco API for a changes in committee membership and post
 David Conroy, 2017
 """
 import config
-import pycurl
 import requests
 from urllib import urlencode
 import json
@@ -15,7 +14,7 @@ import os
 from io import BytesIO
 from binascii import hexlify
 
-#set up logging
+# set up logging
 root = logging.getLogger()
 root.setLevel(logging.INFO)
 ch = logging.StreamHandler(sys.stdout)
@@ -31,40 +30,34 @@ committee_data = {}
 committee_memberships = {}
 committee_data = {}
 
-#ramco fuctions
-def sendMessage(payload):
-    data = BytesIO()
-    c = pycurl.Curl()
-    c.setopt(pycurl.URL, config.API_URL)
-    c.setopt(pycurl.CAINFO, config.PEM_FILE)
-    c.setopt(c.WRITEFUNCTION, data.write)
-    postfields = urlencode(payload)
-    c.setopt(c.POSTFIELDS, postfields)
-    c.perform()
-    results = json.loads(data.getvalue())
-    return results
+# ramco fuctions
+def sendMessage(ramcodata):
+
+    r = requests.post(config.API_URL, verify=config.PEM_FILE, data=ramcodata)
+    return (json.loads(r.text))
+
 
 def fetch_committee_changes():
 
     payload = {'key': config.API_KEY, 'Operation': 'GetEntities', 'Entity': 'cobalt_committeemembership',
                'Attributes': 'cobalt_name,cobalt_committeeid,cobalt_contactid,cobalt_termenddate,cobalt_termbegindate,cobalt_contact_cobalt_committeemembership/cobalt_nrdsid,cobalt_contact_cobalt_committeemembership/firstname,cobalt_contact_cobalt_committeemembership/lastname', 'Filter': 'CreatedOn<ge>2016-03-01'}
     results = sendMessage(payload)
-
     logging.info(
         "Found " + str(len(results['Data'])) + " Altered Committee Memberships in RAMCO:")
 
     return results['Data']
 
 
-#chaincode functions
+# chaincode functions
 def login_chain(enrollId, enrollSecret):
 
     payload = {"enrollId": enrollId,
                "enrollSecret": enrollSecret}
     r = requests.post(config.CORE_PEER_ADDRESS +
                       "/registrar", data=json.dumps(payload))
-    print(r.text)
+
     return r.text
+
 
 def query_thing(id):
     payload = {
@@ -91,6 +84,7 @@ def query_thing(id):
 
     return r.json()
 
+
 def does_user_exist(id):
     logging.info("checking if user exists: " + id)
     results = query_user(id)
@@ -112,6 +106,7 @@ def does_thing_exist(id):
     except Exception as e:
         print(e)
         return False
+
 
 def query_user(id):
     payload = {
@@ -192,6 +187,7 @@ def update_thing_in_chain(thing):
     print(r.text)
     return r.text
 
+
 def main():
     logging.info('Started')
     login_chain(config.ENROLL_ID, config.ENROLL_SECRET)
@@ -217,16 +213,18 @@ def main():
                 "cobalt_TermEndDate"]["Display"]
             committee_data["id"] = committee_members[
                 "cobalt_CommitteeId"]["Value"]
-            committee_data["name"]= committee_members[
+            committee_data["name"] = committee_members[
                 "cobalt_name"]
 
             # committee_data["id"]=hexlify(os.urandom(16)).decode('ascii')
-            logging.info("Checking if \"" + committee_data["name"] + "\" already exists on the Blockchain: " + committee_data["id"])
+            logging.info("Checking if \"" + committee_data[
+                         "name"] + "\" already exists on the Blockchain: " + committee_data["id"])
             if (does_thing_exist(committee_data["id"])):
                 logging.info("...already exists on the Blockchain")
                 thing_exists = True
             else:
-                logging.info(committee_data["name"]+ " does not exist. Creating Blockchain Entry...")
+                logging.info(committee_data[
+                             "name"] + " does not exist. Creating Blockchain Entry...")
                 thing = {"id": committee_data["id"],
                          "description": committee_data["Description"],
                          "date": committee_data["Date"],
