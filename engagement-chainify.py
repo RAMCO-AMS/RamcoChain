@@ -11,8 +11,6 @@ import base64
 import logging
 import sys
 import os
-from io import BytesIO
-from binascii import hexlify
 
 # set up logging
 root = logging.getLogger()
